@@ -4,6 +4,7 @@ import { createThumbnail } from '../../middlewares/upload.js';
 import {
   getAllCats,
   getCatById,
+  getCatsByUserId,
   addCat,
   updateCat,
   deleteCat,
@@ -15,6 +16,9 @@ const router = express.Router();
 
 // GET /api/v1/cat - returns all cats
 router.get('/', getAllCats);
+
+// GET /api/v1/cat/user/:userId - returns cats by user id
+router.get('/user/:userId', getCatsByUserId);
 
 // GET /api/v1/cat/:id - returns one cat by id
 router.get('/:id', getCatById);
