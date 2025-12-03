@@ -65,14 +65,25 @@ const addCat = async (cat) => {
 };
 
 // Update cat in database
-const updateCat = async (id, cat) => {
+const updateCat = async (id, cat, currentUser) => {
   try {
     const { cat_name, birthdate, weight, owner, filename } = cat;
-    const [result] = await promisePool.execute(
-      'UPDATE wsk_cats SET cat_name = ?, birthdate = ?, weight = ?, owner = ?, filename = ? WHERE cat_id = ?',
-      [cat_name, birthdate, weight, owner, filename, id]
-    );
-    return result.affectedRows > 0;
+
+    if (currentUser.role === 'admin') {
+      // Admin can update any cat
+      const [result] = await promisePool.execute(
+        'UPDATE wsk_cats SET cat_name = ?, birthdate = ?, weight = ?, owner = ?, filename = ? WHERE cat_id = ?',
+        [cat_name, birthdate, weight, owner, filename, id]
+      );
+      return result.affectedRows > 0;
+    } else {
+      // Regular users can only update their own cats
+      const [result] = await promisePool.execute(
+        'UPDATE wsk_cats SET cat_name = ?, birthdate = ?, weight = ?, owner = ?, filename = ? WHERE cat_id = ? AND owner = ?',
+        [cat_name, birthdate, weight, owner, filename, id, currentUser.user_id]
+      );
+      return result.affectedRows > 0;
+    }
   } catch (error) {
     console.error('Error updating cat:', error);
     throw error;
@@ -80,13 +91,23 @@ const updateCat = async (id, cat) => {
 };
 
 // Delete cat from database
-const deleteCat = async (id) => {
+const deleteCat = async (id, currentUser) => {
   try {
-    const [result] = await promisePool.execute(
-      'DELETE FROM wsk_cats WHERE cat_id = ?',
-      [id]
-    );
-    return result.affectedRows > 0;
+    if (currentUser.role === 'admin') {
+      // Admin can delete any cat
+      const [result] = await promisePool.execute(
+        'DELETE FROM wsk_cats WHERE cat_id = ?',
+        [id]
+      );
+      return result.affectedRows > 0;
+    } else {
+      // Regular users can only delete their own cats
+      const [result] = await promisePool.execute(
+        'DELETE FROM wsk_cats WHERE cat_id = ? AND owner = ?',
+        [id, currentUser.user_id]
+      );
+      return result.affectedRows > 0;
+    }
   } catch (error) {
     console.error('Error deleting cat:', error);
     throw error;

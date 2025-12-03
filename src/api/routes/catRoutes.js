@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { createThumbnail } from '../../middlewares/upload.js';
+import { createThumbnail } from '../../middlewares/upload.js';\nimport { authenticateToken } from '../../middlewares/authentication.js';
 import {
   getAllCats,
   getCatById,
@@ -23,13 +23,13 @@ router.get('/user/:userId', getCatsByUserId);
 // GET /api/v1/cat/:id - returns one cat by id
 router.get('/:id', getCatById);
 
-// POST /api/v1/cat - adds a new cat
-router.post('/', upload.single('file'), createThumbnail, addCat);
+// POST /api/v1/cat - adds a new cat (protected route)
+router.post('/', authenticateToken, upload.single('file'), createThumbnail, addCat);
 
-// PUT /api/v1/cat/:id - return hard coded json response
-router.put('/:id', updateCat);
+// PUT /api/v1/cat/:id - updates a cat (protected route)
+router.put('/:id', authenticateToken, updateCat);
 
-// DELETE /api/v1/cat/:id - return hard coded json response
-router.delete('/:id', deleteCat);
+// DELETE /api/v1/cat/:id - deletes a cat (protected route)
+router.delete('/:id', authenticateToken, deleteCat);
 
 export default router;
