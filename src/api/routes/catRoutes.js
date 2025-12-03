@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import { createThumbnail } from '../../middlewares/upload.js';
 import {
   getAllCats,
   getCatById,
@@ -19,7 +20,7 @@ router.get('/', getAllCats);
 router.get('/:id', getCatById);
 
 // POST /api/v1/cat - adds a new cat
-router.post('/', upload.single('file'), addCat);
+router.post('/', upload.single('file'), createThumbnail, addCat);
 
 // PUT /api/v1/cat/:id - return hard coded json response
 router.put('/:id', updateCat);
