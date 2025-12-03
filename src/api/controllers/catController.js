@@ -73,11 +73,12 @@ const addCat = async (req, res) => {
   }
 };
 
-// PUT /api/v1/cat/:id - updates a cat
+// PUT /api/v1/cat/:id - updates a cat (with authorization)
 const updateCat = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const catData = { ...req.body };
+    const currentUser = res.locals.user;
 
     // Map 'name' field to 'cat_name' for database compatibility
     if (catData.name) {
@@ -85,10 +86,10 @@ const updateCat = async (req, res) => {
       delete catData.name;
     }
 
-    const success = await updateCatModel(id, catData);
+    const success = await updateCatModel(id, catData, currentUser);
 
     if (!success) {
-      return res.status(404).json({ message: 'Cat not found' });
+      return res.status(404).json({ message: 'Cat not found or unauthorized' });
     }
 
     res.json({ message: 'Cat updated successfully' });
@@ -98,14 +99,16 @@ const updateCat = async (req, res) => {
   }
 };
 
-// DELETE /api/v1/cat/:id - deletes a cat
+// DELETE /api/v1/cat/:id - deletes a cat (with authorization)
 const deleteCat = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const success = await deleteCatModel(id);
+    const currentUser = res.locals.user;
+
+    const success = await deleteCatModel(id, currentUser);
 
     if (!success) {
-      return res.status(404).json({ message: 'Cat not found' });
+      return res.status(404).json({ message: 'Cat not found or unauthorized' });
     }
 
     res.json({ message: 'Cat deleted successfully' });
