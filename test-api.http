@@ -24,6 +24,35 @@ Content-Type: application/json
 
 ###
 
+# Test file upload
+POST http://localhost:3000/api/v1/cat HTTP/1.1
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; name="name"
+
+Misu
+--MyBoundary
+Content-Disposition: form-data; name="weight"
+
+6
+--MyBoundary
+Content-Disposition: form-data; name="owner"
+
+Alice Johnson
+--MyBoundary
+Content-Disposition: form-data; name="birthdate"
+
+2023-10-08
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="test-cat.png"
+Content-Type: image/jpeg
+
+< ./test-cat.png
+--MyBoundary--
+
+###
+
 # Update cat
 PUT http://localhost:3000/api/v1/cat/1
 

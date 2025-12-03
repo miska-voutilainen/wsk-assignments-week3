@@ -19,10 +19,17 @@ const getCatById = (req, res) => {
 
 // POST /api/v1/cat - adds a new cat
 const addCat = (req, res) => {
+  console.log('Form data (req.body):', req.body);
+  console.log('File data (req.file):', req.file);
+
   const newCat = {
     cat_id: Math.max(...catItems.map((cat) => cat.cat_id)) + 1,
     ...req.body,
   };
+
+  if (req.file) {
+    newCat.filename = req.file.filename;
+  }
 
   catItems.push(newCat);
   res.status(201).json(newCat);
