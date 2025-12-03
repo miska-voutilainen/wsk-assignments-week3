@@ -1,31 +1,103 @@
-const catItems = [
-  {
-    cat_id: 1,
-    name: 'Fluffy',
-    birthdate: '2022-03-15',
-    weight: 4.2,
-    owner: 'John Doe',
-    image: 'https://loremflickr.com/320/240/cat',
-    filename: null,
-  },
-  {
-    cat_id: 2,
-    name: 'Whiskers',
-    birthdate: '2021-08-20',
-    weight: 3.8,
-    owner: 'Jane Smith',
-    image: 'https://loremflickr.com/320/240/cat',
-    filename: null,
-  },
-  {
-    cat_id: 3,
-    name: 'Shadow',
-    birthdate: '2023-01-10',
-    weight: 5.1,
-    owner: 'Bob Wilson',
-    image: 'https://loremflickr.com/320/240/cat',
-    filename: null,
-  },
-];
+import promisePool from '../../utils/database.js';
 
-export { catItems };
+// Get all cats from database with owner names
+const getAllCats = async () => {
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT c.cat_id, c.cat_name, c.birthdate, c.weight, c.owner, c.filename, u.name as owner_name 
+       FROM wsk_cats c 
+       LEFT JOIN wsk_users u ON c.owner = u.user_id`
+    );
+    return rows;
+  } catch (error) {
+    console.error('Error getting all cats:', error);
+    throw error;
+  }
+};
+
+// Get cat by id from database with owner name
+const getCatById = async (id) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT c.cat_id, c.cat_name, c.birthdate, c.weight, c.owner, c.filename, u.name as owner_name 
+       FROM wsk_cats c 
+       LEFT JOIN wsk_users u ON c.owner = u.user_id 
+       WHERE c.cat_id = ?`,
+      [id]
+    );
+    return rows[0];
+  } catch (error) {
+    console.error('Error getting cat by id:', error);
+    throw error;
+  }
+};
+
+// Get cats by user id
+const getCatsByUserId = async (userId) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT c.cat_id, c.cat_name, c.birthdate, c.weight, c.owner, c.filename, u.name as owner_name 
+       FROM wsk_cats c 
+       LEFT JOIN wsk_users u ON c.owner = u.user_id 
+       WHERE c.owner = ?`,
+      [userId]
+    );
+    return rows;
+  } catch (error) {
+    console.error('Error getting cats by user id:', error);
+    throw error;
+  }
+};
+
+// Add new cat to database
+const addCat = async (cat) => {
+  try {
+    const { cat_name, birthdate, weight, owner, filename } = cat;
+    const [result] = await promisePool.execute(
+      'INSERT INTO wsk_cats (cat_name, birthdate, weight, owner, filename) VALUES (?, ?, ?, ?, ?)',
+      [cat_name, birthdate, weight, owner, filename]
+    );
+    return { cat_id: result.insertId, ...cat };
+  } catch (error) {
+    console.error('Error adding cat:', error);
+    throw error;
+  }
+};
+
+// Update cat in database
+const updateCat = async (id, cat) => {
+  try {
+    const { cat_name, birthdate, weight, owner, filename } = cat;
+    const [result] = await promisePool.execute(
+      'UPDATE wsk_cats SET cat_name = ?, birthdate = ?, weight = ?, owner = ?, filename = ? WHERE cat_id = ?',
+      [cat_name, birthdate, weight, owner, filename, id]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error updating cat:', error);
+    throw error;
+  }
+};
+
+// Delete cat from database
+const deleteCat = async (id) => {
+  try {
+    const [result] = await promisePool.execute(
+      'DELETE FROM wsk_cats WHERE cat_id = ?',
+      [id]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error deleting cat:', error);
+    throw error;
+  }
+};
+
+export {
+  getAllCats,
+  getCatById,
+  getCatsByUserId,
+  addCat,
+  updateCat,
+  deleteCat,
+};

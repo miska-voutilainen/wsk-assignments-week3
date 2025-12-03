@@ -18,8 +18,7 @@ Content-Type: application/json
   "name": "Mittens",
   "birthdate": "2023-05-10",
   "weight": 3.5,
-  "owner": "Alice Johnson",
-  "image": "https://loremflickr.com/320/240/cat"
+  "owner": 37
 }
 
 ###
@@ -39,7 +38,7 @@ Content-Disposition: form-data; name="weight"
 --MyBoundary
 Content-Disposition: form-data; name="owner"
 
-Alice Johnson
+37
 --MyBoundary
 Content-Disposition: form-data; name="birthdate"
 
@@ -72,6 +71,11 @@ GET http://localhost:3000/api/v1/user
 
 # Get user by ID
 GET http://localhost:3000/api/v1/user/3609
+
+###
+
+# Get cats by user ID
+GET http://localhost:3000/api/v1/cat/user/3609
 
 ###
 

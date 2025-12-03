@@ -1,48 +1,125 @@
-import { catItems } from '../models/catModel.js';
+import {
+  getAllCats as getAllCatsModel,
+  getCatById as getCatByIdModel,
+  getCatsByUserId as getCatsByUserIdModel,
+  addCat as addCatModel,
+  updateCat as updateCatModel,
+  deleteCat as deleteCatModel,
+} from '../models/catModel.js';
 
-// GET /api/v1/cat - returns all cats
-const getAllCats = (req, res) => {
-  res.json(catItems);
+// GET /api/v1/cat - returns all cats with owner names
+const getAllCats = async (req, res) => {
+  try {
+    const cats = await getAllCatsModel();
+    res.json(cats);
+  } catch (error) {
+    console.error('Error in getAllCats controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-// GET /api/v1/cat/:id - returns one cat by id
-const getCatById = (req, res) => {
-  const id = parseInt(req.params.id);
-  const cat = catItems.find((cat) => cat.cat_id === id);
+// GET /api/v1/cat/:id - returns one cat by id with owner name
+const getCatById = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const cat = await getCatByIdModel(id);
 
-  if (!cat) {
-    return res.status(404).json({ message: 'Cat not found' });
+    if (!cat) {
+      return res.status(404).json({ message: 'Cat not found' });
+    }
+
+    res.json(cat);
+  } catch (error) {
+    console.error('Error in getCatById controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
+};
 
-  res.json(cat);
+// GET /api/v1/cat/user/:userId - returns cats by user id
+const getCatsByUserId = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const cats = await getCatsByUserIdModel(userId);
+    res.json(cats);
+  } catch (error) {
+    console.error('Error in getCatsByUserId controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 // POST /api/v1/cat - adds a new cat
-const addCat = (req, res) => {
-  console.log('Form data (req.body):', req.body);
-  console.log('File data (req.file):', req.file);
+const addCat = async (req, res) => {
+  try {
+    console.log('Form data (req.body):', req.body);
+    console.log('File data (req.file):', req.file);
 
-  const newCat = {
-    cat_id: Math.max(...catItems.map((cat) => cat.cat_id)) + 1,
-    ...req.body,
-  };
+    const catData = { ...req.body };
 
-  if (req.file) {
-    newCat.filename = req.file.filename;
+    // Map 'name' field to 'cat_name' for database compatibility
+    if (catData.name) {
+      catData.cat_name = catData.name;
+      delete catData.name;
+    }
+
+    if (req.file) {
+      catData.filename = req.file.filename;
+    }
+
+    const newCat = await addCatModel(catData);
+    res.status(201).json(newCat);
+  } catch (error) {
+    console.error('Error in addCat controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  catItems.push(newCat);
-  res.status(201).json(newCat);
 };
 
-// PUT /api/v1/cat/:id - return hard coded json response
-const updateCat = (req, res) => {
-  res.json({ message: 'Cat item updated.' });
+// PUT /api/v1/cat/:id - updates a cat
+const updateCat = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const catData = { ...req.body };
+
+    // Map 'name' field to 'cat_name' for database compatibility
+    if (catData.name) {
+      catData.cat_name = catData.name;
+      delete catData.name;
+    }
+
+    const success = await updateCatModel(id, catData);
+
+    if (!success) {
+      return res.status(404).json({ message: 'Cat not found' });
+    }
+
+    res.json({ message: 'Cat updated successfully' });
+  } catch (error) {
+    console.error('Error in updateCat controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-// DELETE /api/v1/cat/:id - return hard coded json response
-const deleteCat = (req, res) => {
-  res.json({ message: 'Cat item deleted.' });
+// DELETE /api/v1/cat/:id - deletes a cat
+const deleteCat = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const success = await deleteCatModel(id);
+
+    if (!success) {
+      return res.status(404).json({ message: 'Cat not found' });
+    }
+
+    res.json({ message: 'Cat deleted successfully' });
+  } catch (error) {
+    console.error('Error in deleteCat controller:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-export { getAllCats, getCatById, addCat, updateCat, deleteCat };
+export {
+  getAllCats,
+  getCatById,
+  getCatsByUserId,
+  addCat,
+  updateCat,
+  deleteCat,
+};
