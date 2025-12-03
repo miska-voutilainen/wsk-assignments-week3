@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
-import { createThumbnail } from '../../middlewares/upload.js';\nimport { authenticateToken } from '../../middlewares/authentication.js';
+import { createThumbnail } from '../../middlewares/upload.js';
+import { authenticateToken } from '../../middlewares/authentication.js';
 import {
   getAllCats,
   getCatById,
@@ -24,7 +25,13 @@ router.get('/user/:userId', getCatsByUserId);
 router.get('/:id', getCatById);
 
 // POST /api/v1/cat - adds a new cat (protected route)
-router.post('/', authenticateToken, upload.single('file'), createThumbnail, addCat);
+router.post(
+  '/',
+  authenticateToken,
+  upload.single('file'),
+  createThumbnail,
+  addCat
+);
 
 // PUT /api/v1/cat/:id - updates a cat (protected route)
 router.put('/:id', authenticateToken, updateCat);
