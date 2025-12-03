@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import {
   getAllCats,
   getCatById,
@@ -6,6 +7,8 @@ import {
   updateCat,
   deleteCat,
 } from '../controllers/catController.js';
+
+const upload = multer({ dest: 'uploads/' });
 
 const router = express.Router();
 
@@ -16,7 +19,7 @@ router.get('/', getAllCats);
 router.get('/:id', getCatById);
 
 // POST /api/v1/cat - adds a new cat
-router.post('/', addCat);
+router.post('/', upload.single('file'), addCat);
 
 // PUT /api/v1/cat/:id - return hard coded json response
 router.put('/:id', updateCat);

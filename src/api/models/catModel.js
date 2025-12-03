@@ -6,6 +6,7 @@ const catItems = [
     weight: 4.2,
     owner: 'John Doe',
     image: 'https://loremflickr.com/320/240/cat',
+    filename: null,
   },
   {
     cat_id: 2,
@@ -14,6 +15,7 @@ const catItems = [
     weight: 3.8,
     owner: 'Jane Smith',
     image: 'https://loremflickr.com/320/240/cat',
+    filename: null,
   },
   {
     cat_id: 3,
@@ -22,6 +24,7 @@ const catItems = [
     weight: 5.1,
     owner: 'Bob Wilson',
     image: 'https://loremflickr.com/320/240/cat',
+    filename: null,
   },
 ];
 
